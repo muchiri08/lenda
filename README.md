@@ -166,7 +166,7 @@ In a production system, queries would exclude soft-deleted records.
 ### Steps
 
 ```bash
-git clone <repository-url>
+git clone git@github.com:muchiri08/lenda.git
 cd task
 docker compose up -d
 ./mvnw spring-boot:run
