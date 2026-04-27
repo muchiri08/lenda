@@ -25,7 +25,7 @@ public class Customer {
 
     private String phone;
 
-    private Integer creditScore = generateCreditScore();
+    private Integer creditScore;
 
     @CreationTimestamp
     private Instant createdAt;
@@ -38,7 +38,10 @@ public class Customer {
         this.phone = phone;
     }
 
-    private int generateCreditScore() {
-        return ThreadLocalRandom.current().nextInt(101);
+    @PrePersist
+    public void assignCreditScore() {
+        if (this.creditScore == null) {
+            this.creditScore = ThreadLocalRandom.current().nextInt(0, 101);
+        }
     }
 }

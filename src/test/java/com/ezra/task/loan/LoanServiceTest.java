@@ -4,6 +4,7 @@ import com.ezra.task.common.TenureType;
 import com.ezra.task.customer.entity.Customer;
 import com.ezra.task.customer.repository.CustomerRepository;
 import com.ezra.task.exception.EntityNotFoundException;
+import com.ezra.task.exception.LoanLimitExceedsException;
 import com.ezra.task.loan.dto.LoanDTOs;
 import com.ezra.task.loan.entity.Loan;
 import com.ezra.task.loan.entity.Payment;
@@ -56,6 +57,7 @@ public class LoanServiceTest {
         var customer = new Customer();
         customer.setId(1);
         customer.setFullName("John Doe");
+        customer.setCreditScore(20);
 
         var product = new Product();
         product.setId(1);
@@ -75,6 +77,20 @@ public class LoanServiceTest {
 
         verify(loanRepository).save(any());
         verify(eventPublisher).publishEvent(any(LoanCreatedEvent.class));
+    }
+
+    @Test
+    void should_reject_loan_when_above_limit() {
+        Customer customer = new Customer();
+        customer.setId(1);
+        customer.setCreditScore(20); // limit = 30_000
+
+        when(customerRepository.findById(1)).thenReturn(Optional.of(customer));
+
+        var request = new LoanDTOs.LoanRequest(1, 1, BigDecimal.valueOf(40_000), Loan.Type.LUMP_SUM);
+
+        assertThrows(LoanLimitExceedsException.class,
+                () -> loanService.applyLoan(request));
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.ezra.task.customer.entity.Customer;
 import com.ezra.task.customer.repository.CustomerRepository;
 import com.ezra.task.exception.EntityNotFoundException;
 import com.ezra.task.exception.LoanClosedException;
+import com.ezra.task.exception.LoanLimitExceedsException;
 import com.ezra.task.exception.ResourceNotFoundException;
 import com.ezra.task.loan.LoanCreatedEvent;
 import com.ezra.task.loan.LoanOverdueEvent;
@@ -22,6 +23,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +61,7 @@ public class LoanService {
     @Transactional
     public Loan applyLoan(LoanRequest request) {
         var customer = getCustomerById(request.customerId());
+        validateAmountBorrowed(customer.getCreditScore(), request.amount());
         var product = getProductById(request.productId());
 
         var feeSnapshots = product.getFees()
@@ -128,5 +131,12 @@ public class LoanService {
     private Product getProductById(Integer id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+    }
+
+    private void validateAmountBorrowed(Integer creditScore, BigDecimal amount) {
+        var limit = LoanLimitPolicy.resolveLimit(creditScore);
+        if (amount.compareTo(limit) > 0) {
+            throw new LoanLimitExceedsException("Requested amount exceeds your loan limit. Your current limit is " + limit);
+        }
     }
 }

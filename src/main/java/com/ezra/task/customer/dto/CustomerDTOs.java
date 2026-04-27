@@ -4,6 +4,8 @@ import com.ezra.task.customer.entity.Customer;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+import java.math.BigDecimal;
+
 public interface CustomerDTOs {
     record CustomerRequest(@NotBlank String fullName, @NotBlank @Email String email, @NotBlank String phone) {
         public Customer toCustomer() {
@@ -16,4 +18,6 @@ public interface CustomerDTOs {
             return new CustomerResponse(customer.getId(), customer.getFullName(), customer.getEmail(), customer.getPhone(), customer.getCreditScore());
         }
     }
+
+    record LoanLimitResponse(Integer creditScore, BigDecimal loanLimit){}
 }

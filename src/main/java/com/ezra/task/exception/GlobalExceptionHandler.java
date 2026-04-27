@@ -8,6 +8,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(LoanLimitExceedsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleLoanLimitExceedsException(LoanLimitExceedsException ex) {
+        return new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage()
+        );
+    }
+
     @ExceptionHandler(LoanClosedException.class)
     @ResponseStatus(HttpStatus.OK)
     public ErrorResponse handleLoanClosedException(LoanClosedException ex) {

@@ -25,10 +25,12 @@ The system is designed with a focus on clean architecture, domain-driven design 
 ### Loan Management
 
 * Apply for loans based on products
+* Snapshot-based configuration to ensure historical consistency
 * Supports:
 
     * Lump sum loans
     * Installment-based loans
+    * Credit score–based loan eligibility and limit enforcement
 * Automatic:
 
     * Installment generation
@@ -91,6 +93,7 @@ The system follows a modular structure:
 ```
 customer → product → loan → payment → notification
 ```
+* Each module is loosely coupled, with communication handled through service orchestration and domain events.
 
 ### Key Design Decisions
 
@@ -117,7 +120,6 @@ This ensures:
 
 * Accurate tracking of fund distribution
 * Support for partial and excess payments
-* Auditability
 
 ---
 
@@ -194,6 +196,11 @@ http://localhost:8080
 ```
 Above action returns a location header check it when you perform the action. Simply it's the below Get Customer with the id
 * `GET /customers/{id}` → Get customer
+* `GET /customers/{id}/loan-limit` Get customer loan limit
+
+NOTE:
+* At customer creation, I am generating random **credit score** just for demo purposes that will be used on loan request as a risk check.
+* To check a customer loan limit based on the generated credit score use `GET /customers/{id}/loan-limit`
 
 ### Product
 
@@ -253,6 +260,20 @@ Above action returns a location header check it when you perform the action. Sim
 }
 ```
 
+NOTE:
+* I used a simple credit score-based loan limit policy that uses static tiers for demo purposes. This can be replaced with a more sophisticated risk engine in a real world scenario.
+* The score based policy table is as below:
+### Loan Limit Policy (Demo)
+
+| Credit Score | Max Loan Limit |
+|-------------|---------------|
+| 0 – 10      | 0             |
+| 11 – 30     | 10,000        |
+| 31 – 50     | 20,000        |
+| 51 – 70     | 30,000        |
+| 71 – 90     | 40,000        |
+| 91 – 100    | 50,000        |
+
 ---
 
 ## Testing
@@ -282,8 +303,8 @@ Run tests:
 * No external integrations (SMS/email providers)
 * No authentication/authorization
 * Late fee logic simplified for scope
-* No Strong validation
-* No extensive error handling
+* Validation and error handling are intentionally minimal for demonstration purposes
+* Used spring in memory event mechanism for the demo
 
 ---
 
@@ -301,7 +322,6 @@ Run tests:
 
 ## Conclusion
 
-This implementation focuses on correctness, clarity, and extensibility.
-Key effort was placed on modeling the lending domain and loan lifecycle management.
+The design prioritizes simplicity while leaving clear extension points for production-grade enhancements
 
 ---

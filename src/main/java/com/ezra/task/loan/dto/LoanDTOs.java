@@ -19,10 +19,10 @@ import java.util.List;
 
 public interface LoanDTOs {
     record LoanRequest(
-            Integer customerId,
-            Integer productId,
-            BigDecimal amount,
-            Loan.Type type
+            @NotNull Integer customerId,
+            @NotNull Integer productId,
+            @NotNull @Positive BigDecimal amount,
+            @NotNull Loan.Type type
     ) {
     }
 

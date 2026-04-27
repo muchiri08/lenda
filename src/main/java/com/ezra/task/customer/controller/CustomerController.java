@@ -27,4 +27,9 @@ public class CustomerController {
     public ResponseEntity<CustomerResponse> getCustomer(@PathVariable Integer id) {
         return ResponseEntity.ok(customerService.getCustomerById(id));
     }
+
+    @GetMapping("{id}/loan-limit")
+    public ResponseEntity<LoanLimitResponse> getLoanLimit(@PathVariable Integer id) {
+        return ResponseEntity.ok(customerService.getCustomerLoanLimit(id));
+    }
 }
